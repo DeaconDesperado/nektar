@@ -1,0 +1,13 @@
+[package]
+name = "nektar"
+version = "0.0.1"
+edition = "2018"
+publish = false
+
+[dependencies]
+env_logger = "0.10.0"
+log = "0.4.18"
+ordered-float = "3.7.0"
+try_from = "0.3.2"
+thrift = "0.17.0"
+clap = { version = "4.0", features = ["derive"] }
