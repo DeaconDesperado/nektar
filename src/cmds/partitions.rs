@@ -6,16 +6,16 @@ use crate::cli::MetastoreClient;
 use serde_json;
 
 #[derive(Debug, Args)]
-pub struct GetTable {
+pub struct GetPartitions {
     database:String,
-    table:Vec<String>,
+    table:String,
 }
 
-impl RunCommand for GetTable {
+impl RunCommand for GetPartitions {
 
     fn run(self, mut client:MetastoreClient) -> Result<(), CliError> {
-        let tables = client.get_table_objects_by_name(self.database, self.table)?;
-        if let Ok(json) = serde_json::to_string(&tables) {
+        let partitions = client.get_partition_names(self.database, self.table, 10)?;
+        if let Ok(json) = serde_json::to_string(&partitions) {
             println!("{}", json) 
         };
         Ok(())
