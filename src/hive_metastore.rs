@@ -25,6 +25,7 @@ use thrift::protocol::verify_expected_sequence_number;
 use thrift::protocol::verify_expected_service_call;
 use thrift::protocol::verify_required_field_exists;
 use thrift::server::TProcessor;
+use serde::Serialize;
 
 use crate::fb303;
 
@@ -88,7 +89,7 @@ impl From<&HiveObjectType> for i32 {
   }
 }
 
-#[derive(Copy, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Copy, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub struct PrincipalType(pub i32);
 
 impl PrincipalType {
@@ -628,7 +629,7 @@ impl From<&EventRequestType> for i32 {
   }
 }
 
-#[derive(Copy, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Copy, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub struct SerdeType(pub i32);
 
 impl SerdeType {
@@ -1287,7 +1288,7 @@ impl TSerializable for Version {
 // FieldSchema
 //
 
-#[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub struct FieldSchema {
   pub name: Option<String>,
   pub type_: Option<String>,
@@ -2639,7 +2640,7 @@ impl TSerializable for HiveObjectRef {
 // PrivilegeGrantInfo
 //
 
-#[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub struct PrivilegeGrantInfo {
   pub privilege: Option<String>,
   pub create_time: Option<i32>,
@@ -2924,7 +2925,7 @@ impl TSerializable for PrivilegeBag {
 // PrincipalPrivilegeSet
 //
 
-#[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub struct PrincipalPrivilegeSet {
   pub user_privileges: Option<BTreeMap<String, Vec<PrivilegeGrantInfo>>>,
   pub group_privileges: Option<BTreeMap<String, Vec<PrivilegeGrantInfo>>>,
@@ -4487,7 +4488,7 @@ impl TSerializable for Database {
 // SerDeInfo
 //
 
-#[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub struct SerDeInfo {
   pub name: Option<String>,
   pub serialization_lib: Option<String>,
@@ -4634,7 +4635,7 @@ impl TSerializable for SerDeInfo {
 // Order
 //
 
-#[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub struct Order {
   pub col: Option<String>,
   pub order: Option<i32>,
@@ -4704,7 +4705,7 @@ impl TSerializable for Order {
 // SkewedInfo
 //
 
-#[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub struct SkewedInfo {
   pub skewed_col_names: Option<Vec<String>>,
   pub skewed_col_values: Option<Vec<Vec<String>>>,
@@ -4839,7 +4840,7 @@ impl TSerializable for SkewedInfo {
 // StorageDescriptor
 //
 
-#[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub struct StorageDescriptor {
   pub cols: Option<Vec<FieldSchema>>,
   pub location: Option<String>,
@@ -5081,7 +5082,7 @@ impl TSerializable for StorageDescriptor {
 // Table
 //
 
-#[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub struct Table {
   pub table_name: Option<String>,
   pub db_name: Option<String>,
@@ -13932,7 +13933,7 @@ impl TSerializable for BasicTxnInfo {
 // CreationMetadata
 //
 
-#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub struct CreationMetadata {
   pub cat_name: String,
   pub db_name: String,
