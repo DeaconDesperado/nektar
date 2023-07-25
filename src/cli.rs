@@ -9,7 +9,7 @@ use nektar::ThriftHiveMetastoreSyncClient;
 
 use crate::error::CliError;
 use crate::cmds:: {
-    tables::GetTable, partitions::GetPartitions
+    tables::GetTable, partitions::{GetPartitions, GetPartitionNamesByParts}
 };
 
 pub type MetastoreClient = ThriftHiveMetastoreSyncClient<TBinaryInputProtocol<ReadHalf<TTcpChannel>>, TBinaryOutputProtocol<WriteHalf<TTcpChannel>>>;
@@ -30,7 +30,8 @@ pub struct Cli {
 #[derive(Subcommand, Debug)]
 pub enum Commands {
     GetTable(GetTable), 
-    GetPartitions(GetPartitions)
+    GetPartitions(GetPartitions),
+    GetPartitionNamesByParts(GetPartitionNamesByParts)
 }
 
 
@@ -47,7 +48,8 @@ impl Cli {
 
         match self.command {
             Commands::GetTable(get_table) => get_table.run(client),
-            Commands::GetPartitions(get_partitions) => get_partitions.run(client)
+            Commands::GetPartitions(get_partitions) => get_partitions.run(client),
+            Commands::GetPartitionNamesByParts(get_parts) => get_parts.run(client)
         }
     }
 }
