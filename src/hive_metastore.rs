@@ -3880,7 +3880,7 @@ impl TSerializable for GrantRevokeRoleResponse {
 // Catalog
 //
 
-#[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub struct Catalog {
   pub name: Option<String>,
   pub description: Option<String>,
@@ -4147,7 +4147,7 @@ impl TSerializable for GetCatalogRequest {
 // GetCatalogResponse
 //
 
-#[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub struct GetCatalogResponse {
   pub catalog: Option<Catalog>,
 }

@@ -1,7 +1,5 @@
 use clap::{Parser, Subcommand};
 
-use std::process::ExitCode;
-
 extern crate thrift;
 use thrift::protocol::{TBinaryInputProtocol, TBinaryOutputProtocol};
 use thrift::transport::{TIoChannel, TTcpChannel, ReadHalf, WriteHalf};
@@ -9,7 +7,8 @@ use nektar::ThriftHiveMetastoreSyncClient;
 
 use crate::error::CliError;
 use crate::cmds:: {
-    tables::GetTable, partitions::{GetPartitions, GetPartitionNamesByParts}
+    tables::GetTable, partitions::{GetPartitions, GetPartitionNamesByParts},
+    catalogs::GetCatalog
 };
 
 pub type MetastoreClient = ThriftHiveMetastoreSyncClient<TBinaryInputProtocol<ReadHalf<TTcpChannel>>, TBinaryOutputProtocol<WriteHalf<TTcpChannel>>>;
@@ -30,6 +29,7 @@ pub struct Cli {
 #[derive(Subcommand, Debug)]
 pub enum Commands {
     GetTable(GetTable), 
+    GetCatalog(GetCatalog),
     GetPartitions(GetPartitions),
     GetPartitionNamesByParts(GetPartitionNamesByParts)
 }
@@ -48,6 +48,7 @@ impl Cli {
 
         match self.command {
             Commands::GetTable(get_table) => get_table.run(client),
+            Commands::GetCatalog(get_catalog) => get_catalog.run(client),
             Commands::GetPartitions(get_partitions) => get_partitions.run(client),
             Commands::GetPartitionNamesByParts(get_parts) => get_parts.run(client)
         }
