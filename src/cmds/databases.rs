@@ -9,6 +9,6 @@ pub struct GetDatabases;
 
 impl RunCommand<Vec<String>> for GetDatabases {
     fn run(self, mut client: MetastoreClient) -> Result<Vec<String>, CliError> {
-        Ok(client.get_databases("*".to_string())?)
+        Ok(client.get_all_databases()?)
     }
 }
