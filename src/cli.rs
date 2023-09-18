@@ -1,16 +1,18 @@
 use clap::{Parser, Subcommand, ValueEnum};
 
-extern crate thrift;
 use nektar::ThriftHiveMetastoreSyncClient;
 use serde::Serialize;
+extern crate thrift;
 use thrift::protocol::{TBinaryInputProtocol, TBinaryOutputProtocol};
 use thrift::transport::{ReadHalf, TIoChannel, TTcpChannel, WriteHalf};
 
 use crate::cmds::{
     catalogs::GetCatalog,
+    databases::GetDatabases,
     partitions::{GetPartitionNamesByParts, GetPartitions},
     tables::GetTable,
 };
+
 use crate::error::CliError;
 
 pub type MetastoreClient = ThriftHiveMetastoreSyncClient<
@@ -45,6 +47,7 @@ pub enum Commands {
     GetCatalog(GetCatalog),
     GetPartitions(GetPartitions),
     GetPartitionNamesByParts(GetPartitionNamesByParts),
+    GetDatabases(GetDatabases),
 }
 
 fn serialize<T: Serialize>(f: Format, v: T) -> Result<String, CliError> {
@@ -63,17 +66,19 @@ impl Cli {
         let i_prot = TBinaryInputProtocol::new(i_chan, true);
         let o_prot = TBinaryOutputProtocol::new(o_chan, true);
 
-        // use the input/output protocol to create a Thrift client
         let client = ThriftHiveMetastoreSyncClient::new(i_prot, o_prot);
 
         match self.command {
-            Commands::GetTable(get_table) => serialize(self.format, &get_table.run(client)),
-            Commands::GetCatalog(get_catalog) => serialize(self.format, &get_catalog.run(client)),
+            Commands::GetTable(get_table) => serialize(self.format, get_table.run(client)?),
+            Commands::GetCatalog(get_catalog) => serialize(self.format, get_catalog.run(client)?),
             Commands::GetPartitions(get_partitions) => {
-                serialize(self.format, &get_partitions.run(client))
+                serialize(self.format, get_partitions.run(client)?)
             }
             Commands::GetPartitionNamesByParts(get_parts) => {
-                serialize(self.format, &get_parts.run(client))
+                serialize(self.format, get_parts.run(client)?)
+            }
+            Commands::GetDatabases(get_databases) => {
+                serialize(self.format, get_databases.run(client)?)
             }
         }
     }
