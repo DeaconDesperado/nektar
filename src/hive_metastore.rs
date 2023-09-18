@@ -5,6 +5,8 @@
 #![allow(unused_imports)]
 #![allow(unused_extern_crates)]
 #![allow(clippy::too_many_arguments, clippy::type_complexity, clippy::vec_box, clippy::wrong_self_convention)]
+#![allow(unreachable_patterns)]
+#![allow(unused_variables)]
 #![cfg_attr(rustfmt, rustfmt_skip)]
 
 use std::cell::RefCell;
@@ -71980,4 +71982,3 @@ impl ThriftHiveMetastoreGetRuntimeStatsResult {
     o_prot.write_struct_end()
   }
 }
-

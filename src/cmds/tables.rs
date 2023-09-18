@@ -1,23 +1,17 @@
-use clap::Args;
-use crate::error::CliError;
-use crate::cli::RunCommand;
-use nektar::{TThriftHiveMetastoreSyncClient};
 use crate::cli::MetastoreClient;
-use serde_json;
+use crate::cli::RunCommand;
+use crate::error::CliError;
+use clap::Args;
+use nektar::{TThriftHiveMetastoreSyncClient, Table};
 
 #[derive(Debug, Args)]
 pub struct GetTable {
-    database:String,
-    table:Vec<String>,
+    database: String,
+    table: Vec<String>,
 }
 
-impl RunCommand for GetTable {
-
-    fn run(self, mut client:MetastoreClient) -> Result<(), CliError> {
-        let tables = client.get_table_objects_by_name(self.database, self.table)?;
-        if let Ok(json) = serde_json::to_string(&tables) {
-            println!("{}", json) 
-        };
-        Ok(())
+impl RunCommand<Vec<Table>> for GetTable {
+    fn run(self, mut client: MetastoreClient) -> Result<Vec<Table>, CliError> {
+        Ok(client.get_table_objects_by_name(self.database, self.table)?)
     }
 }
