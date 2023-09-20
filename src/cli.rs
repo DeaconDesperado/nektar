@@ -28,7 +28,7 @@ pub trait RunCommand<T: Serialize> {
 #[command(author, version, about)]
 pub struct Cli {
     metastore_uri: String,
-    #[clap(value_enum, default_value_t = Format::Json)]
+    #[arg(value_enum, long="format", default_value_t = Format::Json)]
     format: Format,
     #[clap(subcommand)]
     command: Commands,
