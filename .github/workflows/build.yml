@@ -1,0 +1,35 @@
+name: build
+on: [push, pull_request]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-linux-x86_64:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Build
+        run: cargo build --verbose --release
+      - name: Test
+        run: cargo test --verbose
+
+
+  build-linux-aarm:
+    runs-on: 	macos-latest 
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Build
+        uses: actions-rs/toolchain@v1
+        with:
+          target: aarch64-apple-darwin 
+          toolchain: stable
+      - name: Build
+        run: cargo build --verbose --release --target=aarch64-apple-darwin
+      - name: Test
+        run: cargo test --verbose
