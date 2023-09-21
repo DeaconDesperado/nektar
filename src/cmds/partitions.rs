@@ -3,7 +3,6 @@ use crate::cli::RunCommand;
 use crate::error::CliError;
 use clap::Args;
 use nektar::TThriftHiveMetastoreSyncClient;
-use serde_json;
 
 #[derive(Debug, Args)]
 pub struct GetPartitions {

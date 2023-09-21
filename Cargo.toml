@@ -3,6 +3,12 @@ name = "nektar"
 version = "0.0.1"
 edition = "2018"
 publish = false
+license-file = "LICENSE"
+description = "A fast, lightweight CLI for Hive Metastore"
+repository = "https://github.com/DeaconDesperado/nektar"
+readme = "README.md"
+keywords = ["hive", "metastore"]
+categories = ["command-line-utilities"]
 
 [dependencies]
 env_logger = "0.10.0"
@@ -13,7 +19,7 @@ thrift = "0.17.0"
 clap = { version = "4.0", features = ["derive"] }
 thiserror = "1.0.44"
 console = "0.15.7"
-serde = { verion = "1.0.174", features = ["derive"] }
+serde = { version = "1.0.174", features = ["derive"] }
 serde_json = "1.0.103"
 serde_yaml = { version = "0.9.25", optional = true }
 

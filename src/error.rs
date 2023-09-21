@@ -1,5 +1,3 @@
-use std::error::Error;
-
 use serde::{ser::SerializeStruct, Serialize};
 use thiserror::Error;
 
