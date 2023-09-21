@@ -1,0 +1,87 @@
+name: release
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  release:
+    types:
+      - published
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-linux-x86_64:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Build
+        run: cargo build --verbose --release
+      - name: Test
+        run: cargo test --verbose
+      - name: Archive binaries 
+        uses: actions/upload-artifact@v3
+        with:
+          name: nektar-linux-x86_64
+          path: |
+            target/release/nektar
+
+  build-aarch64-darwin:
+    runs-on: 	macos-latest 
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install aarch64 target 
+        uses: actions-rs/toolchain@v1
+        with:
+          target: aarch64-apple-darwin 
+          toolchain: stable
+      - name: Build
+        run: cargo build --verbose --release --target=aarch64-apple-darwin
+      - name: Test
+        run: cargo test --verbose
+      - name: Archive binaries 
+        uses: actions/upload-artifact@v3
+        with:
+          name: nektar-aarch64-apple-darwin 
+          path: |
+            target/aarch64-apple-darwin/release/nektar 
+
+  publish:
+    needs: [build-linux-x86_64, build-aarch64-darwin]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - run: cargo publish --token ${CRATES_TOKEN}
+        env:
+          CRATES_TOKEN: ${{ secrets.CRATES_TOKEN }}
+
+  release:
+    needs: [publish]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download binary artifacts
+        id: download
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts 
+      - name: Echo download path
+        run: echo ${{steps.download.outputs.download-path}}
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            artifacts/**/*
