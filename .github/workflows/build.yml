@@ -15,16 +15,21 @@ jobs:
         run: cargo build --verbose --release
       - name: Test
         run: cargo test --verbose
+      - name: Archive binaries 
+        uses: actions/upload-artifact@v3
+        with:
+          name: nektar-x86_64
+          path: |
+            target/release/nektar
 
-
-  build-linux-aarm:
+  build-aarch64-darwin:
     runs-on: 	macos-latest 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Build
+      - name: Install aarch64 target 
         uses: actions-rs/toolchain@v1
         with:
           target: aarch64-apple-darwin 
@@ -33,3 +38,9 @@ jobs:
         run: cargo build --verbose --release --target=aarch64-apple-darwin
       - name: Test
         run: cargo test --verbose
+      - name: Archive binaries 
+        uses: actions/upload-artifact@v3
+        with:
+          name: nektar-aarch64-apple-darwin 
+          path: |
+            target/aarch64-apple-darwin/release/nektar 
