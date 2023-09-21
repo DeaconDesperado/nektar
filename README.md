@@ -21,6 +21,8 @@ debugging of metastore payloads without JVM startup overhead.
 Install via `cargo install` or download a binary directly from releases.
 
 ```
+A fast, lightweight CLI for Hive Metastore
+
 Usage: nektar [OPTIONS] <METASTORE_URI> <COMMAND>
 
 Commands:
@@ -32,7 +34,7 @@ Commands:
   help                          Print this message or the help of the given subcommand(s)
 
 Arguments:
-  <METASTORE_URI>
+  <METASTORE_URL>  Thrift metastore endpoint, eg: host.com:9083
 
 Options:
       --format <FORMAT>  [default: json] [possible values: json, yaml]

@@ -27,7 +27,8 @@ pub trait RunCommand<T: Serialize> {
 #[derive(Parser, Debug)]
 #[command(author, version, about)]
 pub struct Cli {
-    metastore_uri: String,
+    /// Thrift metastore endpoint, eg: host.com:9083
+    metastore_url: String,
     #[arg(value_enum, long="format", default_value_t = Format::Json)]
     format: Format,
     #[clap(subcommand)]
@@ -61,7 +62,7 @@ fn serialize<T: Serialize>(f: Format, v: T) -> Result<String, CliError> {
 impl Cli {
     pub fn run(self) -> Result<String, CliError> {
         let mut c = TTcpChannel::new();
-        c.open(&self.metastore_uri)?;
+        c.open(&self.metastore_url)?;
         let (i_chan, o_chan) = c.split()?;
         let i_prot = TBinaryInputProtocol::new(i_chan, true);
         let o_prot = TBinaryOutputProtocol::new(o_chan, true);
