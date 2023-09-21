@@ -72,6 +72,8 @@ jobs:
   release:
     needs: [publish]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Download binary artifacts
         id: download
