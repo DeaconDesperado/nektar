@@ -2,7 +2,6 @@
 name = "nektar"
 version = "0.0.1"
 edition = "2018"
-publish = false
 license-file = "LICENSE"
 description = "A fast, lightweight CLI for Hive Metastore"
 repository = "https://github.com/DeaconDesperado/nektar"
