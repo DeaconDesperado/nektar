@@ -24,7 +24,12 @@ serde_yaml = { version = "0.9.25", optional = true }
 assert_cmd = "2.0.12"
 
 [dev-dependencies]
+async_once = "0.2.6"
+ctor = "0.2.5"
+lazy_static = "1.4.0"
+predicates = "3.0.4"
 testcontainers = "0.14.0"
+tokio = { version = "1.32.0", features = ["macros", "sync", "rt"] }
 
 [features]
 default = ["yaml"]
