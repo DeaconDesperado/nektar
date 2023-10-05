@@ -4206,7 +4206,7 @@ impl TSerializable for GetCatalogResponse {
 // GetCatalogsResponse
 //
 
-#[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub struct GetCatalogsResponse {
   pub names: Option<Vec<String>>,
 }

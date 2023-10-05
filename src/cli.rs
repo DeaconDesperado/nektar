@@ -6,8 +6,9 @@ extern crate thrift;
 use thrift::protocol::{TBinaryInputProtocol, TBinaryOutputProtocol};
 use thrift::transport::{ReadHalf, TIoChannel, TTcpChannel, WriteHalf};
 
+use crate::cmds::catalogs::GetCatalogs;
 use crate::cmds::{
-    catalogs::GetCatalog,
+    catalogs::{CreateCatalog, GetCatalog},
     databases::GetDatabases,
     partitions::{GetPartitionNamesByParts, GetPartitions},
     tables::GetTable,
@@ -46,9 +47,11 @@ pub enum Format {
 pub enum Commands {
     GetTable(GetTable),
     GetCatalog(GetCatalog),
+    GetCatalogs(GetCatalogs),
     GetPartitions(GetPartitions),
     GetPartitionNamesByParts(GetPartitionNamesByParts),
     GetDatabases(GetDatabases),
+    CreateCatalog(CreateCatalog),
 }
 
 fn serialize<T: Serialize>(f: Format, v: T) -> Result<String, CliError> {
@@ -80,6 +83,12 @@ impl Cli {
             }
             Commands::GetDatabases(get_databases) => {
                 serialize(self.format, get_databases.run(client)?)
+            }
+            Commands::CreateCatalog(create_catalog) => {
+                serialize(self.format, create_catalog.run(client)?)
+            }
+            Commands::GetCatalogs(get_catalogs) => {
+                serialize(self.format, get_catalogs.run(client)?)
             }
         }
     }
