@@ -4,7 +4,9 @@ use nektar::ThriftHiveMetastoreSyncClient;
 use serde::Serialize;
 extern crate thrift;
 use thrift::protocol::{TBinaryInputProtocol, TBinaryOutputProtocol};
-use thrift::transport::{ReadHalf, TIoChannel, TTcpChannel, WriteHalf};
+use thrift::transport::{
+    ReadHalf, TBufferedReadTransport, TBufferedWriteTransport, TIoChannel, TTcpChannel, WriteHalf,
+};
 
 use crate::cmds::catalogs::GetCatalogs;
 use crate::cmds::{
@@ -17,8 +19,8 @@ use crate::cmds::{
 use crate::error::CliError;
 
 pub type MetastoreClient = ThriftHiveMetastoreSyncClient<
-    TBinaryInputProtocol<ReadHalf<TTcpChannel>>,
-    TBinaryOutputProtocol<WriteHalf<TTcpChannel>>,
+    TBinaryInputProtocol<TBufferedReadTransport<ReadHalf<TTcpChannel>>>,
+    TBinaryOutputProtocol<TBufferedWriteTransport<WriteHalf<TTcpChannel>>>,
 >;
 
 pub trait RunCommand<T: Serialize> {
@@ -67,8 +69,8 @@ impl Cli {
         let mut c = TTcpChannel::new();
         c.open(&self.metastore_url)?;
         let (i_chan, o_chan) = c.split()?;
-        let i_prot = TBinaryInputProtocol::new(i_chan, true);
-        let o_prot = TBinaryOutputProtocol::new(o_chan, true);
+        let i_prot = TBinaryInputProtocol::new(TBufferedReadTransport::new(i_chan), true);
+        let o_prot = TBinaryOutputProtocol::new(TBufferedWriteTransport::new(o_chan), true);
 
         let client = ThriftHiveMetastoreSyncClient::new(i_prot, o_prot);
 
