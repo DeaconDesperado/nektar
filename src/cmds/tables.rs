@@ -12,6 +12,7 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
+/// Get a single table by database and table name
 #[derive(Debug, Args)]
 pub struct GetTable {
     database: String,
@@ -24,6 +25,7 @@ impl RunCommand<Vec<Table>> for GetTable {
     }
 }
 
+/// Create a table from a table definition file
 #[derive(Debug, Args)]
 pub struct CreateTable {
     /// The input format for the table definition file
@@ -53,6 +55,7 @@ impl RunCommand<Table> for CreateTable {
     }
 }
 
+/// Drop a single table by database and table name
 #[derive(Debug, Args)]
 pub struct DropTable {
     db_name: String,

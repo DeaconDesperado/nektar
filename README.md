@@ -23,14 +23,18 @@ Install via `cargo install` or download a binary directly from releases.
 ```
 A fast, lightweight CLI for Hive Metastore
 
-Usage: nektar [OPTIONS] <METASTORE_URI> <COMMAND>
+Usage: nektar [OPTIONS] <METASTORE_URL> <COMMAND>
 
 Commands:
-  get-table
-  get-catalog
-  get-partitions
-  get-partition-names-by-parts
-  get-databases
+  get-table                     Get a single table by database and table name
+  get-catalog                   Get a single catalog by name
+  get-catalogs                  Get a list of all catalogs in metastore
+  get-partitions                Get the partitions of a table
+  get-partition-names-by-parts  Get the partitions of a table by partition value
+  get-databases                 Get all databases in the metastore
+  create-catalog                Create a catalog
+  create-table                  Create a table from a table definition file
+  drop-table                    Drop a single table by database and table name
   help                          Print this message or the help of the given subcommand(s)
 
 Arguments:
