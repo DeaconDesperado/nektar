@@ -3,6 +3,7 @@ use crate::cli::MetastoreClient;
 use crate::cli::RunCommand;
 use crate::error::CliError;
 use clap::Args;
+use dialoguer::Confirm;
 use nektar::{TThriftHiveMetastoreSyncClient, Table};
 use std::convert::TryInto;
 use std::path::PathBuf;
@@ -49,5 +50,28 @@ impl RunCommand<Table> for CreateTable {
         };
         table.create_time = Some(since_epoch);
         Ok(client.create_table(table.clone())?).map(|_| table)
+    }
+}
+
+#[derive(Debug, Args)]
+pub struct DropTable {
+    db_name: String,
+    table_name: String,
+    #[arg(long = "delete")]
+    delete: bool,
+}
+
+impl RunCommand<()> for DropTable {
+    fn run(self, mut client: MetastoreClient) -> Result<(), CliError> {
+        let confirmation = Confirm::new()
+            .with_prompt(format!("Delete {}?", self.table_name))
+            .interact()
+            .unwrap();
+
+        if confirmation {
+            Ok(client.drop_table(self.db_name, self.table_name, self.delete)?)
+        } else {
+            Ok(())
+        }
     }
 }

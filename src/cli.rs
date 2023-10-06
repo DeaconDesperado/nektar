@@ -9,6 +9,7 @@ use thrift::transport::{
 };
 
 use crate::cmds::catalogs::GetCatalogs;
+use crate::cmds::tables::DropTable;
 use crate::cmds::{
     catalogs::{CreateCatalog, GetCatalog},
     databases::GetDatabases,
@@ -55,6 +56,7 @@ pub enum Commands {
     GetDatabases(GetDatabases),
     CreateCatalog(CreateCatalog),
     CreateTable(CreateTable),
+    DropTable(DropTable),
 }
 
 fn serialize<T: Serialize>(f: Format, v: T) -> Result<String, CliError> {
@@ -96,6 +98,7 @@ impl Cli {
             Commands::CreateTable(create_table) => {
                 serialize(self.format, create_table.run(client)?)
             }
+            Commands::DropTable(drop_table) => serialize(self.format, drop_table.run(client)?),
         }
     }
 }
