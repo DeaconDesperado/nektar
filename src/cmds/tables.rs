@@ -1,10 +1,10 @@
+use crate::cli::Format;
 use crate::cli::MetastoreClient;
 use crate::cli::RunCommand;
 use crate::error::CliError;
-use clap::{Args, ValueEnum};
+use clap::Args;
 use nektar::{TThriftHiveMetastoreSyncClient, Table};
 use std::convert::TryInto;
-use std::io::prelude::*;
 use std::path::PathBuf;
 use std::{
     fs::File,
@@ -23,14 +23,12 @@ impl RunCommand<Vec<Table>> for GetTable {
     }
 }
 
-#[derive(ValueEnum, Debug, Clone)]
-pub enum TableType {
-    External,
-    Internal,
-}
-
 #[derive(Debug, Args)]
 pub struct CreateTable {
+    /// The input format for the table definition file
+    #[arg(value_enum, short='f', long="format", default_value_t = Format::Json)]
+    format: Format,
+    /// A file path for table definition
     table_definition_file: PathBuf,
 }
 
@@ -43,8 +41,12 @@ impl RunCommand<Table> for CreateTable {
             .as_secs()
             .try_into()
             .unwrap();
-        let file = File::open(self.table_definition_file).unwrap();
-        let mut table: Table = serde_json::from_reader(file).unwrap();
+        let file = File::open(self.table_definition_file)?;
+        let mut table: Table = match self.format {
+            Format::Json => serde_json::from_reader(file).unwrap(),
+            #[cfg(feature = "yaml")]
+            Format::Yaml => serde_yaml::from_reader(file).unwrap(),
+        };
         table.create_time = Some(since_epoch);
         Ok(client.create_table(table.clone())?).map(|_| table)
     }
