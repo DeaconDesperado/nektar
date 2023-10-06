@@ -41,8 +41,9 @@ impl RunCommand<GetCatalogsResponse> for GetCatalogs {
 #[derive(Debug, Args)]
 pub struct CreateCatalog {
     name: String,
-    description: Option<String>,
     location_uri: Option<String>,
+    #[arg(long = "description", short = 'd')]
+    description: Option<String>,
 }
 
 impl Into<Catalog> for CreateCatalog {

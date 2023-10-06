@@ -136,8 +136,9 @@ async fn test_create_and_get_catalog() {
         .arg(format!("{}:{}", METASTORE_HOST, open_port))
         .arg("create-catalog")
         .arg(catalog_name)
-        .arg("a description")
         .arg("file:/opt/hive/data/warehouse")
+        .arg("-d")
+        .arg("a description")
         .assert()
         .success();
 
