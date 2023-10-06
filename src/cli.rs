@@ -13,7 +13,7 @@ use crate::cmds::{
     catalogs::{CreateCatalog, GetCatalog},
     databases::GetDatabases,
     partitions::{GetPartitionNamesByParts, GetPartitions},
-    tables::GetTable,
+    tables::{CreateTable, GetTable},
 };
 
 use crate::error::CliError;
@@ -54,6 +54,7 @@ pub enum Commands {
     GetPartitionNamesByParts(GetPartitionNamesByParts),
     GetDatabases(GetDatabases),
     CreateCatalog(CreateCatalog),
+    CreateTable(CreateTable),
 }
 
 fn serialize<T: Serialize>(f: Format, v: T) -> Result<String, CliError> {
@@ -91,6 +92,9 @@ impl Cli {
             }
             Commands::GetCatalogs(get_catalogs) => {
                 serialize(self.format, get_catalogs.run(client)?)
+            }
+            Commands::CreateTable(create_table) => {
+                serialize(self.format, create_table.run(client)?)
             }
         }
     }

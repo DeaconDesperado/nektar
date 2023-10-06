@@ -1,0 +1,75 @@
+{
+  "table_name": "artist_affinity_28days",
+  "db_name": "default",
+  "owner": "regadas",
+  "sd": {
+    "cols": [
+      {
+        "name": "user_id",
+        "type_": "string",
+        "comment": ""
+      },
+      {
+        "name": "artist_gid",
+        "type_": "string",
+        "comment": ""
+      },
+      {
+        "name": "days",
+        "type_": "bigint",
+        "comment": ""
+      },
+      {
+        "name": "affinity",
+        "type_": "double",
+        "comment": ""
+      }
+    ],
+    "location": "file:/opt/hive/data/warehouse",
+    "input_format": "org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat",
+    "output_format": "org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat",
+    "compressed": false,
+    "num_buckets": 0,
+    "serde_info": {
+      "name": "artist_affinity_28days",
+      "serialization_lib": "org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe",
+      "parameters": {},
+      "description": null,
+      "serializer_class": null,
+      "deserializer_class": null,
+      "serde_type": null
+    },
+    "bucket_cols": [],
+    "sort_cols": [],
+    "parameters": {},
+    "skewed_info": {
+      "skewed_col_names": [],
+      "skewed_col_values": [],
+      "skewed_col_value_location_maps": {}
+    },
+    "stored_as_sub_directories": false
+  },
+  "partition_keys": [
+    {
+      "name": "ds",
+      "type_": "date",
+      "comment": ""
+    }
+  ],
+  "parameters": {
+    "STATS_GENERATED_VIA_STATS_TASK": "workaround for potential lack of HIVE-12730",
+    "auto.purge": "false",
+    "presto_query_id": "20230228_212728_00112_p3e7g",
+    "presto_version": "403",
+    "transient_lastDdlTime": "1677619649"
+  },
+  "view_original_text": "",
+  "view_expanded_text": "",
+  "table_type": "MANAGED_TABLE",
+  "privileges": null,
+  "temporary": null,
+  "rewrite_enabled": false,
+  "creation_metadata": null,
+  "cat_name": "hive",
+  "owner_type": 1
+}
