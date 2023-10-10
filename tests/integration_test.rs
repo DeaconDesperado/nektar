@@ -151,29 +151,3 @@ async fn test_create_and_get_catalog() {
         .stdout(IsJson)
         .success();
 }
-
-#[tokio::test]
-async fn test_create_table() {
-    METASTORE_IN.tx.send(ContainerCommands::FetchPort).unwrap();
-    let mut create_cmd = Command::cargo_bin("nektar").unwrap();
-    let open_port = METASTORE_HOST_PORT.rx.lock().await.recv().await.unwrap();
-    let catalog_name = "test";
-    create_cmd
-        .arg(format!("{}:{}", METASTORE_HOST, open_port))
-        .arg("create-catalog")
-        .arg(catalog_name)
-        .arg("file:/opt/hive/data/warehouse")
-        .arg("-d")
-        .arg("a description")
-        .assert()
-        .success();
-
-    let mut get_cmd = Command::cargo_bin("nektar").unwrap();
-    get_cmd
-        .arg(format!("{}:{}", METASTORE_HOST, open_port))
-        .arg("get-catalog")
-        .arg(catalog_name)
-        .assert()
-        .stdout(IsJson)
-        .success();
-}
