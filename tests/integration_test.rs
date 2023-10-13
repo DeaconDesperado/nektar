@@ -5,7 +5,7 @@ use predicates::json::IsJson;
 use assert_cmd::Command;
 use ctor::{ctor, dtor};
 use lazy_static::lazy_static;
-use std::{future::Future, thread};
+use std::{env, fmt::Display, future::Future, net::IpAddr, thread};
 use testcontainers::clients::Cli;
 use testcontainers::core::WaitFor;
 use testcontainers::images::generic::GenericImage;
@@ -48,9 +48,20 @@ enum ContainerCommands {
     Stop,
 }
 
+struct HostPort {
+    host: IpAddr,
+    port: u16,
+}
+
+impl Display for HostPort {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}:{}", self.host, self.port)
+    }
+}
+
 lazy_static! {
     static ref METASTORE_IN: Channel<ContainerCommands> = channel();
-    static ref METASTORE_HOST_PORT: Channel<u16> = channel();
+    static ref METASTORE_HOST_PORT: Channel<HostPort> = channel();
     static ref METASTORE_STOPPED: Channel<()> = channel();
 }
 
@@ -67,6 +78,10 @@ async fn set_up() {
         .with_env_var(SERVICE_NAME_VAR, SERVICE_NAME)
         .with_env_var(SERVICE_OPTS_VAR, SERVICE_OPTS);
     let hive_metastore = docker.run(hive_image);
+    let host = match env::var("GITHUB_ACTIONS") {
+        Ok(_) => hive_metastore.get_bridge_ip_address(),
+        Err(_) => "127.0.0.1".parse().unwrap(),
+    };
     let open_port = hive_metastore.ports().map_to_host_port_ipv4(METASTORE_PORT);
 
     log::info!("{}:{}", METASTORE_HOST, METASTORE_PORT);
@@ -74,9 +89,13 @@ async fn set_up() {
     while let Some(command) = rx.recv().await {
         println!("Received container command: {:?}", command);
         match command {
-            ContainerCommands::FetchPort => {
-                METASTORE_HOST_PORT.tx.send(open_port.unwrap()).unwrap()
-            }
+            ContainerCommands::FetchPort => METASTORE_HOST_PORT
+                .tx
+                .send(HostPort {
+                    host: host,
+                    port: open_port.unwrap(),
+                })
+                .unwrap(),
             ContainerCommands::Stop => {
                 hive_metastore.stop();
                 METASTORE_STOPPED.tx.send(()).unwrap();
@@ -119,7 +138,7 @@ async fn test_get_default_catalog() {
     METASTORE_IN.tx.send(ContainerCommands::FetchPort).unwrap();
     let mut cmd = Command::cargo_bin("nektar").unwrap();
     let open_port = METASTORE_HOST_PORT.rx.lock().await.recv().await.unwrap();
-    cmd.arg(format!("{}:{}", METASTORE_HOST, open_port))
+    cmd.arg(format!("{}", open_port))
         .arg("get-catalog")
         .arg("hive")
         .assert()
@@ -133,7 +152,7 @@ async fn test_create_and_get_catalog() {
     let open_port = METASTORE_HOST_PORT.rx.lock().await.recv().await.unwrap();
     let catalog_name = "test";
     create_cmd
-        .arg(format!("{}:{}", METASTORE_HOST, open_port))
+        .arg(format!("{}", open_port))
         .arg("create-catalog")
         .arg(catalog_name)
         .arg("file:/opt/hive/data/warehouse")
@@ -144,7 +163,7 @@ async fn test_create_and_get_catalog() {
 
     let mut get_cmd = Command::cargo_bin("nektar").unwrap();
     get_cmd
-        .arg(format!("{}:{}", METASTORE_HOST, open_port))
+        .arg(format!("{}", open_port))
         .arg("get-catalog")
         .arg(catalog_name)
         .assert()

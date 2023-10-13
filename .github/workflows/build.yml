@@ -3,6 +3,7 @@ on: [pull_request]
 
 env:
   CARGO_TERM_COLOR: always
+  GITHUB_ACTIONS: true
 
 jobs:
   build-linux-x86_64:
