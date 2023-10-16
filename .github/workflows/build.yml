@@ -8,15 +8,29 @@ env:
 jobs:
   build-linux-x86_64:
     runs-on: ubuntu-latest
+    services:
+      metastore:
+        image: apache/hive:4.0.0-beta-2-SNAPSHOT
+        env:
+          SERVICE_NAME: metastore
+          SERVICE_OPTS: "-Dhive.root.logger=console"
+        ports:
+          - 9083:9083
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Install target
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
       - name: Build
         run: cargo build --verbose --release
       - name: Test
-        run: cargo test --verbose
-      - name: Archive binaries 
+        run: cargo test -- --show-output
+        env:
+          RUST_LOG: trace
+      - name: Archive binaries
         uses: actions/upload-artifact@v3
         with:
           name: nektar-x86_64
@@ -24,24 +38,22 @@ jobs:
             target/release/nektar
 
   build-aarch64-darwin:
-    runs-on: 	macos-latest 
+    runs-on: 	macos-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Install aarch64 target 
+      - name: Install aarch64 target
         uses: actions-rs/toolchain@v1
         with:
-          target: aarch64-apple-darwin 
+          target: aarch64-apple-darwin
           toolchain: stable
       - name: Build
         run: cargo build --verbose --release --target=aarch64-apple-darwin
-      - name: Test
-        run: cargo test --verbose
-      - name: Archive binaries 
+      - name: Archive binaries
         uses: actions/upload-artifact@v3
         with:
-          name: nektar-aarch64-apple-darwin 
+          name: nektar-aarch64-apple-darwin
           path: |
-            target/aarch64-apple-darwin/release/nektar 
+            target/aarch64-apple-darwin/release/nektar

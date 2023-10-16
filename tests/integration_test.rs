@@ -1,4 +1,5 @@
 mod predicates;
+use log::*;
 
 use predicates::json::IsJson;
 
@@ -6,9 +7,9 @@ use assert_cmd::Command;
 use ctor::{ctor, dtor};
 use lazy_static::lazy_static;
 use std::{env, fmt::Display, future::Future, net::IpAddr, thread};
-use testcontainers::clients::Cli;
 use testcontainers::core::WaitFor;
-use testcontainers::images::generic::GenericImage;
+use testcontainers::GenericImage;
+use testcontainers::{clients::Cli, RunnableImage};
 use tokio::{
     runtime,
     sync::{
@@ -49,7 +50,7 @@ enum ContainerCommands {
 }
 
 struct HostPort {
-    host: IpAddr,
+    host: String,
     port: u16,
 }
 
@@ -70,36 +71,58 @@ lazy_static! {
 /// Necessary to support starting one long lived testcontainer
 /// for all test methods.
 async fn set_up() {
-    let docker = Cli::default();
-    let msg_await = WaitFor::message_on_stderr(READY_MSG.to_string());
-    let hive_image = GenericImage::new("apache/hive", HIVE_VERSION)
-        .with_wait_for(msg_await)
-        .with_exposed_port(METASTORE_PORT)
-        .with_env_var(SERVICE_NAME_VAR, SERVICE_NAME)
-        .with_env_var(SERVICE_OPTS_VAR, SERVICE_OPTS);
-    let hive_metastore = docker.run(hive_image);
-    let host = match env::var("GITHUB_ACTIONS") {
-        Ok(_) => hive_metastore.get_bridge_ip_address(),
-        Err(_) => "127.0.0.1".parse().unwrap(),
-    };
-    let open_port = hive_metastore.ports().map_to_host_port_ipv4(METASTORE_PORT);
+    match env::var("GITHUB_ACTIONS") {
+        Err(_) => {
+            let docker = Cli::default();
+            let msg_await = WaitFor::message_on_stderr(READY_MSG.to_string());
+            let hive_image = RunnableImage::from(
+                GenericImage::new("apache/hive", HIVE_VERSION)
+                    .with_wait_for(msg_await)
+                    .with_exposed_port(METASTORE_PORT)
+                    .with_env_var(SERVICE_NAME_VAR, SERVICE_NAME)
+                    .with_env_var(SERVICE_OPTS_VAR, SERVICE_OPTS),
+            )
+            .with_mapped_port((METASTORE_PORT, METASTORE_PORT));
+            let hive_metastore = docker.run(hive_image);
+            let open_port = hive_metastore.ports().map_to_host_port_ipv4(METASTORE_PORT);
 
-    log::info!("{}:{}", METASTORE_HOST, METASTORE_PORT);
-    let mut rx = METASTORE_IN.rx.lock().await;
-    while let Some(command) = rx.recv().await {
-        println!("Received container command: {:?}", command);
-        match command {
-            ContainerCommands::FetchPort => METASTORE_HOST_PORT
-                .tx
-                .send(HostPort {
-                    host: host,
-                    port: open_port.unwrap(),
-                })
-                .unwrap(),
-            ContainerCommands::Stop => {
-                hive_metastore.stop();
-                METASTORE_STOPPED.tx.send(()).unwrap();
-                rx.close();
+            log::info!("{}:{}", METASTORE_HOST, METASTORE_PORT);
+            let mut rx = METASTORE_IN.rx.lock().await;
+            while let Some(command) = rx.recv().await {
+                println!("Received container command: {:?}", command);
+                match command {
+                    ContainerCommands::FetchPort => METASTORE_HOST_PORT
+                        .tx
+                        .send(HostPort {
+                            host: "localhost".to_string(),
+                            port: open_port.unwrap(),
+                        })
+                        .unwrap(),
+                    ContainerCommands::Stop => {
+                        hive_metastore.stop();
+                        METASTORE_STOPPED.tx.send(()).unwrap();
+                        rx.close();
+                    }
+                }
+            }
+        }
+        Ok(_) => {
+            let mut rx = METASTORE_IN.rx.lock().await;
+            while let Some(command) = rx.recv().await {
+                println!("Received container command: {:?}", command);
+                match command {
+                    ContainerCommands::FetchPort => METASTORE_HOST_PORT
+                        .tx
+                        .send(HostPort {
+                            host: "localhost".to_string(),
+                            port: 9083,
+                        })
+                        .unwrap(),
+                    ContainerCommands::Stop => {
+                        METASTORE_STOPPED.tx.send(()).unwrap();
+                        rx.close();
+                    }
+                }
             }
         }
     }
@@ -135,6 +158,7 @@ async fn clean_up() {
 
 #[tokio::test]
 async fn test_get_default_catalog() {
+    env_logger::builder().is_test(true).try_init();
     METASTORE_IN.tx.send(ContainerCommands::FetchPort).unwrap();
     let mut cmd = Command::cargo_bin("nektar").unwrap();
     let open_port = METASTORE_HOST_PORT.rx.lock().await.recv().await.unwrap();
