@@ -26,10 +26,13 @@ jobs:
           toolchain: stable
       - name: Build
         run: cargo build --verbose --release
+      - name: Await metastore container
+        run: ./metastore.sh await
       - name: Test
         run: cargo test -- --show-output
         env:
           RUST_LOG: trace
+          RUSTFLAGS: '--cfg ci'
       - name: Archive binaries
         uses: actions/upload-artifact@v3
         with:
