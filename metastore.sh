@@ -19,11 +19,36 @@ container_exists() {
   return 1
 }
 
+err_retry() {
+  local exit_code=$1
+  local attempts=$2
+  local sleep_millis=$3
+  shift 3
+  for attempt in `seq 1 $attempts`; do
+    echo "Attempt $attempt of $attempts"
+    # This weird construction lets us capture return codes under -o errexit
+    "$@" && local rc=$? || local rc=$?
+    if [[ ! $rc -eq $exit_code ]]; then
+      return $rc
+    fi
+    if [[ $attempt -eq $attempts ]]; then
+      return $rc
+    fi
+    local sleep_s="$((($attempt * $attempt * $sleep_millis) / 1000))"
+    sleep $sleep_s 
+  done
+}
+
+metastore_available() {
+  (nc -z localhost 9083)
+  return $?
+}
+
 usage() {
   echo ""
-  echo "convenience script to run trino locally for testing"
+  echo "convenience script to run hive metastore locally for testing"
   echo ""
-  echo "usage: $0 start/stop/rm"
+  echo "usage: $0 start | await | stop | rm "
 }
 
 if [ -z "${MODE}" ]; then
@@ -43,6 +68,11 @@ case "$MODE" in
       --env SERVICE_NAME=metastore \
       ${HIVE_IMAGE_TAG} 
   fi
+  ;;
+"await")
+  echo "Waiting for metastore availability..."
+  err_retry 1 5 1000 metastore_available
+  echo "metastore available!"
   ;;
 "stop")
   ${DOCKER} kill "${CONTAINER_NAME}"
