@@ -4,6 +4,7 @@ use crate::error::CliError;
 use clap::Args;
 use nektar::TThriftHiveMetastoreSyncClient;
 
+/// Get all databases in the metastore
 #[derive(Debug, Args)]
 pub struct GetDatabases;
 

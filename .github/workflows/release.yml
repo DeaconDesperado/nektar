@@ -9,18 +9,36 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  GITHUB_ACTIONS: true
 
 jobs:
   build-linux-x86_64:
     runs-on: ubuntu-latest
+    services:
+      metastore:
+        image: apache/hive:4.0.0-beta-2-SNAPSHOT
+        env:
+          SERVICE_NAME: metastore
+          SERVICE_OPTS: "-Dhive.root.logger=console"
+        ports:
+          - 9083:9083
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Install target
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
       - name: Build
         run: cargo build --verbose --release
+      - name: Await metastore container
+        run: ./metastore.sh await
       - name: Test
-        run: cargo test --verbose
+        run: cargo test -- --show-output
+        env:
+          RUST_LOG: trace
+          RUSTFLAGS: '--cfg ci'
       - name: Archive binaries 
         uses: actions/upload-artifact@v3
         with:
@@ -42,8 +60,6 @@ jobs:
           toolchain: stable
       - name: Build
         run: cargo build --verbose --release --target=aarch64-apple-darwin
-      - name: Test
-        run: cargo test --verbose
       - name: Archive binaries 
         uses: actions/upload-artifact@v3
         with:

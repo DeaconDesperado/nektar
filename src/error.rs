@@ -1,4 +1,5 @@
 use serde::{ser::SerializeStruct, Serialize};
+use std::io::Error as IoError;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -11,6 +12,8 @@ pub enum CliError {
     JsonSerdeError(#[from] serde_json::Error),
     #[error("Could not serialize to json")]
     YamlSerdeError(#[from] serde_yaml::Error),
+    #[error(transparent)]
+    IoError(#[from] IoError),
 }
 
 impl Serialize for CliError {
@@ -27,6 +30,7 @@ impl Serialize for CliError {
             }
             CliError::JsonSerdeError(e) => serializer.serialize_str(&e.to_string()),
             CliError::YamlSerdeError(e) => serializer.serialize_str(&e.to_string()),
+            CliError::IoError(e) => serializer.serialize_str(&e.to_string()),
         }
     }
 }

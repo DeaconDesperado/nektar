@@ -41,16 +41,17 @@ impl RunCommand<GetCatalogsResponse> for GetCatalogs {
 #[derive(Debug, Args)]
 pub struct CreateCatalog {
     name: String,
+    location_uri: String,
+    #[arg(long = "description", short = 'd')]
     description: Option<String>,
-    location_uri: Option<String>,
 }
 
 impl Into<Catalog> for CreateCatalog {
     fn into(self) -> Catalog {
         Catalog {
             name: Some(self.name),
+            location_uri: Some(self.location_uri),
             description: self.description,
-            location_uri: self.location_uri,
         }
     }
 }
