@@ -9,12 +9,11 @@ use thrift::transport::{
 };
 
 use crate::cmds::catalogs::GetCatalogs;
-use crate::cmds::tables::DropTable;
 use crate::cmds::{
     catalogs::{CreateCatalog, GetCatalog},
     databases::GetDatabases,
     partitions::{GetPartitionNamesByParts, GetPartitions},
-    tables::{CreateTable, GetTable},
+    tables::{CreateTable, DropTable, GetTable, ListTables},
 };
 
 use crate::error::CliError;
@@ -56,6 +55,7 @@ pub enum Commands {
     GetDatabases(GetDatabases),
     CreateCatalog(CreateCatalog),
     CreateTable(CreateTable),
+    ListTables(ListTables),
     DropTable(DropTable),
 }
 
@@ -98,6 +98,7 @@ impl Cli {
             Commands::CreateTable(create_table) => {
                 serialize(self.format, create_table.run(client)?)
             }
+            Commands::ListTables(list_tables) => serialize(self.format, list_tables.run(client)?),
             Commands::DropTable(drop_table) => serialize(self.format, drop_table.run(client)?),
         }
     }
