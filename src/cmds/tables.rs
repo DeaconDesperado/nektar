@@ -83,7 +83,8 @@ impl RunCommand<()> for DropTable {
 #[derive(Debug, Args)]
 pub struct ListTables {
     db_name: String,
-    #[arg(short, long, default_value = "*")]
+    /// An optional glob search by table name
+    #[arg(short = 's', long = "search", default_value = "*")]
     name_glob: String,
 }
 
