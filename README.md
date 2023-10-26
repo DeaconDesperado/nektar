@@ -34,6 +34,7 @@ Commands:
   get-databases                 Get all databases in the metastore
   create-catalog                Create a catalog
   create-table                  Create a table from a table definition file
+  list-tables                   Get tables in database with optional glob on name
   drop-table                    Drop a single table by database and table name
   help                          Print this message or the help of the given subcommand(s)
 
