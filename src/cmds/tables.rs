@@ -78,3 +78,20 @@ impl RunCommand<()> for DropTable {
         }
     }
 }
+
+/// Get tables in database with optional glob on name
+#[derive(Debug, Args)]
+pub struct ListTables {
+    db_name: String,
+    /// An optional glob search by table name
+    #[arg(short = 's', long = "search", default_value = "*")]
+    name_glob: String,
+}
+
+impl RunCommand<Vec<Table>> for ListTables {
+    fn run(self, mut client: MetastoreClient) -> Result<Vec<Table>, CliError> {
+        Ok(client
+            .get_tables(self.db_name.to_owned(), self.name_glob.to_owned())
+            .and_then(|tables| client.get_table_objects_by_name(self.db_name.to_owned(), tables))?)
+    }
+}
