@@ -68,26 +68,27 @@ jobs:
             target/aarch64-apple-darwin/release/nektar 
 
 
-  publish:
-    needs: [build-linux-x86_64, build-aarch64-darwin]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
+            #publish:
+            #  needs: [build-linux-x86_64, build-aarch64-darwin]
+            #  runs-on: ubuntu-latest
+            #  steps:
+            #    - name: Checkout
+            #      uses: actions/checkout@v4
+            #      with:
+            #        fetch-depth: 0
+            #    - name: Install stable toolchain
+            #      uses: actions-rs/toolchain@v1
+            #      with:
+            #        toolchain: stable
+            #        override: true
 
-      - run: cargo publish --token ${CRATES_TOKEN}
-        env:
-          CRATES_TOKEN: ${{ secrets.CRATES_TOKEN }}
+            #    - run: cargo publish --token ${CRATES_TOKEN}
+            #      env:
+            #        CRATES_TOKEN: ${{ secrets.CRATES_TOKEN }}
 
   release:
-    needs: [publish]
+    #needs: [publish]
+    needs: [build-linux-x86_64, build-aarch64-darwin]
     runs-on: ubuntu-latest
     permissions:
       contents: write
