@@ -27,9 +27,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install target
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
+        uses: dtolnay/rust-toolchain@stable
       - name: Build
         run: cargo build --verbose --release
       - name: Await metastore container
@@ -54,10 +52,9 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install aarch64 target 
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
-          target: aarch64-apple-darwin 
-          toolchain: stable
+          targets: aarch64-apple-darwin 
       - name: Build
         run: cargo build --verbose --release --target=aarch64-apple-darwin
       - name: Archive binaries 
@@ -77,11 +74,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
-
+        uses: dtolnay/rust-toolchain@stable
       - run: cargo publish --token ${CRATES_TOKEN}
         env:
           CRATES_TOKEN: ${{ secrets.CRATES_TOKEN }}
