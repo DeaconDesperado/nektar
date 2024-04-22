@@ -20,7 +20,7 @@ thiserror = "1.0.44"
 console = "0.15.8"
 serde = { version = "1.0.174", features = ["derive"] }
 serde_json = "1.0.109"
-serde_yaml = { version = "0.9.25", optional = true }
+serde_yaml = { version = "0.9.29", optional = true }
 assert_cmd = "2.0.12"
 dialoguer = "0.11.0"
 
