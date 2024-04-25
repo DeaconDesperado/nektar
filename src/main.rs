@@ -13,7 +13,7 @@ fn main() -> ExitCode {
         }
         Err(e) => {
             eprintln!("{}", style(e).for_stderr().red());
-            return ExitCode::FAILURE;
+            ExitCode::FAILURE
         }
     }
 }
