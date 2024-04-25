@@ -60,7 +60,7 @@ pub enum Commands {
     DropTable(DropTable),
 }
 
-fn serialize<T: Serialize>(f: Format, v: T) -> Result<String, CliError> {
+fn serialize<T: Serialize>(f: Format, v: Result<T, CliError>) -> Result<String, CliError> {
     match f {
         Format::Json => Ok(serde_json::to_string(&v)?),
         #[cfg(feature = "yaml")]
@@ -79,31 +79,25 @@ impl Cli {
         let client = ThriftHiveMetastoreSyncClient::new(i_prot, o_prot);
 
         match self.command {
-            Commands::GetTable(get_table) => serialize(self.format, get_table.run(client)?),
-            Commands::GetCatalog(get_catalog) => serialize(self.format, get_catalog.run(client)?),
+            Commands::GetTable(get_table) => serialize(self.format, get_table.run(client)),
+            Commands::GetCatalog(get_catalog) => serialize(self.format, get_catalog.run(client)),
             Commands::GetPartitions(get_partitions) => {
-                serialize(self.format, get_partitions.run(client)?)
+                serialize(self.format, get_partitions.run(client))
             }
             Commands::GetPartitionNamesByParts(get_parts) => {
-                serialize(self.format, get_parts.run(client)?)
+                serialize(self.format, get_parts.run(client))
             }
-            Commands::GetDatabase(get_database) => {
-                serialize(self.format, get_database.run(client)?)
-            }
+            Commands::GetDatabase(get_database) => serialize(self.format, get_database.run(client)),
             Commands::GetDatabases(get_databases) => {
-                serialize(self.format, get_databases.run(client)?)
+                serialize(self.format, get_databases.run(client))
             }
             Commands::CreateCatalog(create_catalog) => {
-                serialize(self.format, create_catalog.run(client)?)
+                serialize(self.format, create_catalog.run(client))
             }
-            Commands::GetCatalogs(get_catalogs) => {
-                serialize(self.format, get_catalogs.run(client)?)
-            }
-            Commands::CreateTable(create_table) => {
-                serialize(self.format, create_table.run(client)?)
-            }
-            Commands::ListTables(list_tables) => serialize(self.format, list_tables.run(client)?),
-            Commands::DropTable(drop_table) => serialize(self.format, drop_table.run(client)?),
+            Commands::GetCatalogs(get_catalogs) => serialize(self.format, get_catalogs.run(client)),
+            Commands::CreateTable(create_table) => serialize(self.format, create_table.run(client)),
+            Commands::ListTables(list_tables) => serialize(self.format, list_tables.run(client)),
+            Commands::DropTable(drop_table) => serialize(self.format, drop_table.run(client)),
         }
     }
 }

@@ -10,7 +10,7 @@ pub enum CliError {
     ThriftError(#[from] thrift::Error),
     #[error("Could not serialize to json")]
     JsonSerdeError(#[from] serde_json::Error),
-    #[error("Could not serialize to json")]
+    #[error("Could not serialize to yaml")]
     YamlSerdeError(#[from] serde_yaml::Error),
     #[error(transparent)]
     IoError(#[from] IoError),
@@ -22,15 +22,26 @@ impl Serialize for CliError {
         S: serde::Serializer,
     {
         match self {
-            CliError::MetastoreUnavailble(_msg) => serializer.serialize_str(&self.to_string()),
+            CliError::MetastoreUnavailble(_msg) => {
+                let mut s = serializer.serialize_struct("error", 1)?;
+                s.serialize_field("kind", "MetastoreUnavailble")?;
+                s.serialize_field("message", &_msg)?;
+                s.end()
+            }
             CliError::ThriftError(e) => {
                 let mut s = serializer.serialize_struct("error", 1)?;
+                s.serialize_field("kind", "ThriftError")?;
                 s.serialize_field("message", &e.to_string())?;
                 s.end()
             }
             CliError::JsonSerdeError(e) => serializer.serialize_str(&e.to_string()),
             CliError::YamlSerdeError(e) => serializer.serialize_str(&e.to_string()),
-            CliError::IoError(e) => serializer.serialize_str(&e.to_string()),
+            CliError::IoError(e) => {
+                let mut s = serializer.serialize_struct("error", 1)?;
+                s.serialize_field("kind", &e.to_string())?;
+                s.serialize_field("message", &e.to_string())?;
+                s.end()
+            }
         }
     }
 }
