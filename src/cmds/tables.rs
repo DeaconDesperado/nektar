@@ -86,12 +86,18 @@ pub struct ListTables {
     /// An optional glob search by table name
     #[arg(short = 's', long = "search", default_value = "*")]
     name_glob: String,
+    #[arg(short = 'l', long = "limit", default_value = "-1")]
+    max_tables: i16,
 }
 
 impl RunCommand<Vec<Table>> for ListTables {
     fn run(self, mut client: MetastoreClient) -> Result<Vec<Table>, CliError> {
         Ok(client
-            .get_tables(self.db_name.to_owned(), self.name_glob.to_owned())
-            .and_then(|tables| client.get_table_objects_by_name(self.db_name.to_owned(), tables))?)
+            .get_table_names_by_filter(
+                self.db_name.to_owned(),
+                self.name_glob.to_owned(),
+                self.max_tables.to_owned(),
+            )
+            .and_then(|tables| client.get_table_objects_by_name(self.db_name, tables))?)
     }
 }
