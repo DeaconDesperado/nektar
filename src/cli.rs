@@ -11,7 +11,7 @@ use thrift::transport::{
 use crate::cmds::catalogs::GetCatalogs;
 use crate::cmds::{
     catalogs::{CreateCatalog, GetCatalog},
-    databases::GetDatabases,
+    databases::{GetDatabase, GetDatabases},
     partitions::{GetPartitionNamesByParts, GetPartitions},
     tables::{CreateTable, DropTable, GetTable, ListTables},
 };
@@ -53,6 +53,7 @@ pub enum Commands {
     GetPartitions(GetPartitions),
     GetPartitionNamesByParts(GetPartitionNamesByParts),
     GetDatabases(GetDatabases),
+    GetDatabase(GetDatabase),
     CreateCatalog(CreateCatalog),
     CreateTable(CreateTable),
     ListTables(ListTables),
@@ -85,6 +86,9 @@ impl Cli {
             }
             Commands::GetPartitionNamesByParts(get_parts) => {
                 serialize(self.format, get_parts.run(client)?)
+            }
+            Commands::GetDatabase(get_database) => {
+                serialize(self.format, get_database.run(client)?)
             }
             Commands::GetDatabases(get_databases) => {
                 serialize(self.format, get_databases.run(client)?)

@@ -4330,7 +4330,7 @@ impl TSerializable for DropCatalogRequest {
 // Database
 //
 
-#[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Database {
   pub name: Option<String>,
   pub description: Option<String>,
