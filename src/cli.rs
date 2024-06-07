@@ -1,3 +1,5 @@
+use std::collections::BTreeMap;
+
 use clap::{Parser, Subcommand, ValueEnum};
 
 use nektar::ThriftHiveMetastoreSyncClient;
@@ -38,7 +40,7 @@ pub struct Cli {
     command: Commands,
 }
 
-#[derive(ValueEnum, Debug, Clone)]
+#[derive(ValueEnum, Debug, Copy, Clone)]
 pub enum Format {
     Json,
     #[cfg(feature = "yaml")]
@@ -60,24 +62,34 @@ pub enum Commands {
     DropTable(DropTable),
 }
 
+//TODO: refactor this, hopefully without type erasure
 fn serialize<T: Serialize>(f: Format, v: Result<T, CliError>) -> Result<String, CliError> {
     match f {
-        Format::Json => Ok(serde_json::to_string(&v)?),
+        Format::Json => match &v {
+            Ok(t) => Ok(serde_json::to_string(&t)?),
+            Err(e) => Ok(serde_json::to_string(&BTreeMap::from([("error", e)]))?),
+        },
         #[cfg(feature = "yaml")]
-        Format::Yaml => Ok(serde_yaml::to_string(&v)?),
+        Format::Yaml => match &v {
+            Ok(t) => Ok(serde_yaml::to_string(&t)?),
+            Err(e) => Ok(serde_yaml::to_string(&BTreeMap::from([("error", e)]))?),
+        },
     }
 }
 
 impl Cli {
-    pub fn run(self) -> Result<String, CliError> {
+    fn client(&self) -> Result<MetastoreClient, CliError> {
         let mut c = TTcpChannel::new();
         c.open(&self.metastore_url)?;
         let (i_chan, o_chan) = c.split()?;
         let i_prot = TBinaryInputProtocol::new(TBufferedReadTransport::new(i_chan), true);
         let o_prot = TBinaryOutputProtocol::new(TBufferedWriteTransport::new(o_chan), true);
 
-        let client = ThriftHiveMetastoreSyncClient::new(i_prot, o_prot);
+        Ok(ThriftHiveMetastoreSyncClient::new(i_prot, o_prot))
+    }
 
+    pub fn run(self) -> Result<String, CliError> {
+        let client = self.client()?;
         match self.command {
             Commands::GetTable(get_table) => serialize(self.format, get_table.run(client)),
             Commands::GetCatalog(get_catalog) => serialize(self.format, get_catalog.run(client)),
