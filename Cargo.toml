@@ -12,7 +12,7 @@ categories = ["command-line-utilities"]
 [dependencies]
 env_logger = "0.10.2"
 log = "0.4.22"
-ordered-float = "4.2.0"
+ordered-float = "4.2.1"
 try_from = "0.3.2"
 thrift = "0.17.0"
 clap = { version = "4.5", features = ["derive"] }
