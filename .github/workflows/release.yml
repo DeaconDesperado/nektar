@@ -38,7 +38,7 @@ jobs:
           RUST_LOG: trace
           RUSTFLAGS: '--cfg ci'
       - name: Archive binaries 
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: nektar-linux-x86_64
           path: |
@@ -58,7 +58,7 @@ jobs:
       - name: Build
         run: cargo build --verbose --release --target=aarch64-apple-darwin
       - name: Archive binaries 
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: nektar-aarch64-apple-darwin 
           path: |
@@ -87,7 +87,7 @@ jobs:
     steps:
       - name: Download binary artifacts
         id: download
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: artifacts 
       - name: Echo download path
@@ -98,7 +98,7 @@ jobs:
         run: mv ${{steps.download.outputs.download-path}}/nektar-aarch64-apple-darwin/nektar nektar-aarch64-apple-darwin
       - name: Build Changelog
         id: github_release
-        uses: mikepenz/release-changelog-builder-action@v4.0.1
+        uses: mikepenz/release-changelog-builder-action@v.5.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Release
