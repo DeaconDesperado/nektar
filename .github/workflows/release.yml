@@ -98,7 +98,7 @@ jobs:
         run: mv ${{steps.download.outputs.download-path}}/nektar-aarch64-apple-darwin/nektar nektar-aarch64-apple-darwin
       - name: Build Changelog
         id: github_release
-        uses: mikepenz/release-changelog-builder-action@v.5.0.0
+        uses: mikepenz/release-changelog-builder-action@v5.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Release
