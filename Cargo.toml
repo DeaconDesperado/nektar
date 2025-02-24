@@ -11,7 +11,7 @@ categories = ["command-line-utilities"]
 
 [dependencies]
 env_logger = "0.11.6"
-log = "0.4.25"
+log = "0.4.26"
 ordered-float = "4.6.0"
 try_from = "0.3.2"
 thrift = "0.17.0"
