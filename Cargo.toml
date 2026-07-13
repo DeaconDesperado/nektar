@@ -14,7 +14,7 @@ env_logger = "0.11.10"
 log = "0.4.32"
 ordered-float = "5.1.0"
 try_from = "0.3.2"
-thrift = "0.17.0"
+thrift = "0.24.0"
 clap = { version = "4.6", features = ["derive"] }
 thiserror = "2.0.18"
 console = "0.16.3"
